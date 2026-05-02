@@ -1,6 +1,6 @@
-package com.chatchannel.listener;
+package tech.ccat.chatchannel.listener;
 
-import com.chatchannel.service.ChatService;
+import tech.ccat.chatchannel.service.ChatService;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 

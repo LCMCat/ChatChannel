@@ -1,4 +1,4 @@
-package com.chatchannel.channel;
+package tech.ccat.chatchannel.channel;
 
 import java.util.Collections;
 import java.util.Map;

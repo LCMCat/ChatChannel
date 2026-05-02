@@ -1,13 +1,13 @@
-package com.chatchannel.service;
+package tech.ccat.chatchannel.service;
 
-import com.chatchannel.api.ChatEvent;
-import com.chatchannel.channel.ChannelType;
-import com.chatchannel.config.ChatChannelConfig;
-import com.chatchannel.manager.ChatLogManager;
-import com.chatchannel.manager.CooldownManager;
-import com.chatchannel.manager.PlayerChannelManager;
-import com.chatchannel.manager.PrivateMessageManager;
-import com.chatchannel.util.MessageUtil;
+import tech.ccat.chatchannel.api.ChatEvent;
+import tech.ccat.chatchannel.channel.ChannelType;
+import tech.ccat.chatchannel.config.ChatChannelConfig;
+import tech.ccat.chatchannel.manager.ChatLogManager;
+import tech.ccat.chatchannel.manager.CooldownManager;
+import tech.ccat.chatchannel.manager.PlayerChannelManager;
+import tech.ccat.chatchannel.manager.PrivateMessageManager;
+import tech.ccat.chatchannel.util.MessageUtil;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;

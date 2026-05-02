@@ -1,22 +1,25 @@
-package com.chatchannel.command;
+package tech.ccat.chatchannel.command;
 
-import com.chatchannel.config.ChatChannelConfig;
-import com.chatchannel.service.ChatService;
-import com.chatchannel.util.MessageUtil;
+import tech.ccat.chatchannel.config.ChatChannelConfig;
+import tech.ccat.chatchannel.service.ChatService;
+import tech.ccat.chatchannel.util.MessageUtil;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class ReplyCommand implements SimpleCommand {
+public class MsgCommand implements SimpleCommand {
 
     private final ChatService service;
     private final ChatChannelConfig config;
     private final ProxyServer server;
 
-    public ReplyCommand(ChatService service, ChatChannelConfig config, ProxyServer server) {
+    public MsgCommand(ChatService service, ChatChannelConfig config, ProxyServer server) {
         this.service = service;
         this.config = config;
         this.server = server;
@@ -32,36 +35,32 @@ public class ReplyCommand implements SimpleCommand {
             return;
         }
 
-        if (!player.hasPermission(config.getPermission("command-reply"))) {
+        if (!player.hasPermission(config.getPermission("command-msg"))) {
             player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("no-permission")));
             return;
         }
 
-        if (args.length == 0) {
-            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("usage", "usage", "/reply <消息>")));
+        if (args.length < 2) {
+            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("usage", "usage", "/msg <玩家> <消息>")));
             return;
         }
 
-        if (!service.hasLastPartner(player.getUniqueId())) {
-            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("msg-no-reply")));
-            return;
-        }
-
-        if (service.isPmExpired(player.getUniqueId())) {
-            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("msg-reply-expired")));
-            return;
-        }
-
-        String partnerName = service.getLastPartnerName(player.getUniqueId());
-        Optional<Player> targetOpt = server.getPlayer(partnerName);
+        String targetName = args[0];
+        Optional<Player> targetOpt = server.getPlayer(targetName);
 
         if (targetOpt.isEmpty()) {
-            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("msg-player-not-found", "player", partnerName)));
+            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("msg-player-not-found", "player", targetName)));
             return;
         }
 
         Player target = targetOpt.get();
-        String message = String.join(" ", args);
+
+        if (target.getUniqueId().equals(player.getUniqueId())) {
+            player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("msg-self")));
+            return;
+        }
+
+        String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         if (message.isEmpty()) {
             player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("message-empty")));
@@ -84,7 +83,22 @@ public class ReplyCommand implements SimpleCommand {
     }
 
     @Override
+    public List<String> suggest(Invocation invocation) {
+        String[] args = invocation.arguments();
+
+        if (args.length <= 1) {
+            String prefix = args.length == 0 ? "" : args[0].toLowerCase();
+            return server.getAllPlayers().stream()
+                    .map(Player::getUsername)
+                    .filter(name -> name.toLowerCase().startsWith(prefix))
+                    .collect(Collectors.toList());
+        }
+
+        return List.of();
+    }
+
+    @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(config.getPermission("command-reply"));
+        return invocation.source().hasPermission(config.getPermission("command-msg"));
     }
 }

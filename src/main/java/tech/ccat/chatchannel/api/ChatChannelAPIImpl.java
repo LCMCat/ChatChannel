@@ -1,9 +1,9 @@
-package com.chatchannel.api;
+package tech.ccat.chatchannel.api;
 
-import com.chatchannel.channel.ChannelRegistry;
-import com.chatchannel.channel.ChannelType;
-import com.chatchannel.config.ChatChannelConfig;
-import com.chatchannel.service.ChatService;
+import tech.ccat.chatchannel.channel.ChannelRegistry;
+import tech.ccat.chatchannel.channel.ChannelType;
+import tech.ccat.chatchannel.config.ChatChannelConfig;
+import tech.ccat.chatchannel.service.ChatService;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 

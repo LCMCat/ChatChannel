@@ -1,8 +1,8 @@
-package com.chatchannel.command;
+package tech.ccat.chatchannel.command;
 
-import com.chatchannel.ChatChannelPlugin;
-import com.chatchannel.config.ChatChannelConfig;
-import com.chatchannel.util.MessageUtil;
+import tech.ccat.chatchannel.ChatChannelPlugin;
+import tech.ccat.chatchannel.config.ChatChannelConfig;
+import tech.ccat.chatchannel.util.MessageUtil;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 

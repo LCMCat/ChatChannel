@@ -1,9 +1,9 @@
-package com.chatchannel.listener;
+package tech.ccat.chatchannel.listener;
 
-import com.chatchannel.channel.ChannelType;
-import com.chatchannel.config.ChatChannelConfig;
-import com.chatchannel.service.ChatService;
-import com.chatchannel.util.MessageUtil;
+import tech.ccat.chatchannel.channel.ChannelType;
+import tech.ccat.chatchannel.config.ChatChannelConfig;
+import tech.ccat.chatchannel.service.ChatService;
+import tech.ccat.chatchannel.util.MessageUtil;
 import com.velocitypowered.api.event.EventHandler;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;

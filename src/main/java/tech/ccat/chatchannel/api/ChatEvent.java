@@ -1,6 +1,6 @@
-package com.chatchannel.api;
+package tech.ccat.chatchannel.api;
 
-import com.chatchannel.channel.ChannelType;
+import tech.ccat.chatchannel.channel.ChannelType;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.proxy.Player;
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package com.chatchannel.manager;
+package tech.ccat.chatchannel.manager;
 
 import java.util.Map;
 import java.util.UUID;

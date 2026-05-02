@@ -1,4 +1,4 @@
-package com.chatchannel.config;
+package tech.ccat.chatchannel.config;
 
 import org.slf4j.Logger;
 
