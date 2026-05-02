@@ -137,6 +137,6 @@ public class ChatCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(config.getPermission("command-chat"));
+        return true;
     }
 }

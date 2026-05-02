@@ -25,6 +25,6 @@ public class ChatChannelReloadCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission("chat.admin.reload");
+        return true;
     }
 }

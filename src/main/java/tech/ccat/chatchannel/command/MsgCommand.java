@@ -99,6 +99,6 @@ public class MsgCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(config.getPermission("command-msg"));
+        return true;
     }
 }

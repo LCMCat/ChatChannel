@@ -103,6 +103,6 @@ public class ChannelMessageCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(channel.getPermission());
+        return true;
     }
 }

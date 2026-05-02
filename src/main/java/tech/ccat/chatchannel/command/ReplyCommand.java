@@ -85,6 +85,6 @@ public class ReplyCommand implements SimpleCommand {
 
     @Override
     public boolean hasPermission(Invocation invocation) {
-        return invocation.source().hasPermission(config.getPermission("command-reply"));
+        return true;
     }
 }
