@@ -80,6 +80,12 @@ public interface ChatChannelAPI {
     boolean hasChannelPermission(UUID uuid, ChannelType channel);
     String getFormat(ChannelType channel);
     void setFormat(ChannelType channel, String format);
+    void setPartyMemberProvider(Function<Player, Collection<Player>> provider);
+    void setGuildMemberProvider(Function<Player, Collection<Player>> provider);
+    void setOfficerMemberProvider(Function<Player, Collection<Player>> provider);
+    void setIsInPartyPredicate(Predicate<Player> predicate);
+    void setIsInGuildPredicate(Predicate<Player> predicate);
+    void setIsOfficerPredicate(Predicate<Player> predicate);
 }
 ```
 
@@ -190,6 +196,68 @@ String getFormat(ChannelType channel)
 ```java
 void setFormat(ChannelType channel, String format)
 ```
+
+---
+
+### setIsInPartyPredicate
+
+注册判断玩家是否在队伍中的谓词。默认返回 `false`（即不允许使用 Party 频道）。
+
+**Party 插件必须在启动时注册此谓词，否则玩家无法切换到 Party 频道或发送 Party 消息。**
+
+```java
+void setIsInPartyPredicate(Predicate<Player> predicate)
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| predicate | Predicate\<Player\> | 返回 true 表示玩家在队伍中；传 null 重置为默认（始终 false） |
+
+**影响范围：**
+- `/chat p` / `/chat party` 切换频道时的 `validateChannelAccess` 检查
+- `/pchat` / `/pc` 发送消息时的 `validateChannelAccess` 检查
+- 普通聊天路由到 PARTY 频道时的 `validateChannelAccess` 检查
+
+---
+
+### setIsInGuildPredicate
+
+注册判断玩家是否在公会中的谓词。默认返回 `false`。
+
+**Guild 插件必须在启动时注册此谓词，否则玩家无法使用 Guild 和 Officer 频道。**
+
+```java
+void setIsInGuildPredicate(Predicate<Player> predicate)
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| predicate | Predicate\<Player\> | 返回 true 表示玩家在公会中；传 null 重置为默认（始终 false） |
+
+**影响范围：**
+- `/chat g` / `/chat guild` 切换频道检查
+- `/gchat` / `/gc` 发送消息检查
+- 普通聊天路由到 GUILD 频道检查
+- Officer 频道的前置检查（必须先在公会中）
+
+---
+
+### setIsOfficerPredicate
+
+注册判断玩家是否为公会官员的谓词。默认返回 `false`。
+
+```java
+void setIsOfficerPredicate(Predicate<Player> predicate)
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| predicate | Predicate\<Player\> | 返回 true 表示玩家是官员；传 null 重置为默认（始终 false） |
+
+**影响范围：**
+- `/chat o` / `/chat officer` 切换频道检查
+- `/ochat` / `/oc` 发送消息检查
+- 普通聊天路由到 OFFICER 频道检查
 
 ---
 
@@ -553,32 +621,58 @@ public class ChatFilter implements EventListener<ChatEvent> {
 server.getEventManager().register(pluginContainer, new ChatFilter());
 ```
 
-### 示例 4：扩展 getPartyMembers 实现（供未来 Party 系统调用）
+### 示例 4：Party 系统集成 — 注册成员提供者和访问谓词
 
-当前 `ChatService.getPartyMembers` 返回所有在线玩家。在 Party 系统集成时，需修改此处逻辑：
+Party 插件需要在启动时注册 **两组** 回调：
+
+1. **成员提供者**（`setPartyMemberProvider`）— 决定消息发送给谁
+2. **访问谓词**（`setIsInPartyPredicate`）— 决定玩家能否使用该频道
 
 ```java
-// 在 ChatService 中添加成员提供者接口
-private Function<Player, Collection<Player>> partyMemberProvider = Player::getPlayers;
+ChatChannelAPI api = ChatChannelPlugin.getAPI(server);
 
-public void setPartyMemberProvider(Function<Player, Collection<Player>> provider) {
-    this.partyMemberProvider = provider;
-}
-
-// 修改 getPartyMembers
-private Collection<Player> getPartyMembers(Player player) {
-    return partyMemberProvider.apply(player);
-}
-
-// Party 系统注册提供者
-chatService.setPartyMemberProvider(player -> {
+// 注册成员提供者：决定 Party 频道消息的接收者
+api.setPartyMemberProvider(player -> {
     Party party = partyManager.getPartyByMember(player.getUniqueId());
     if (party == null) return List.of();
-    return party.getOnlineMembers(); // 返回实际的队伍成员列表
+    return party.getOnlineMembers();
+});
+
+// 注册访问谓词：决定玩家能否切换到 Party 频道 / 发送 Party 消息
+api.setIsInPartyPredicate(player -> {
+    return partyManager.getPartyByMember(player.getUniqueId()) != null;
 });
 ```
 
-同样的模式适用于 `getGuildMembers` 和 `getOfficerMembers`。
+Guild 系统同理：
+
+```java
+// 成员提供者
+api.setGuildMemberProvider(player -> {
+    Guild guild = guildManager.getGuildByMember(player.getUniqueId());
+    if (guild == null) return List.of();
+    return guild.getOnlineMembers();
+});
+
+api.setOfficerMemberProvider(player -> {
+    Guild guild = guildManager.getGuildByMember(player.getUniqueId());
+    if (guild == null) return List.of();
+    if (!guild.isOfficer(player.getUniqueId())) return List.of();
+    return guild.getOnlineOfficers();
+});
+
+// 访问谓词
+api.setIsInGuildPredicate(player -> {
+    return guildManager.getGuildByMember(player.getUniqueId()) != null;
+});
+
+api.setIsOfficerPredicate(player -> {
+    Guild guild = guildManager.getGuildByMember(player.getUniqueId());
+    return guild != null && guild.isOfficer(player.getUniqueId());
+});
+```
+
+> **重要提示：** 必须在 `ProxyInitializeEvent` 之后注册，建议在 Party/Guild 插件的 `onProxyInitialize` 中执行。未注册谓词时，对应频道默认不可用（谓词返回 false）。
 
 ---
 

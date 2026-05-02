@@ -7,8 +7,11 @@ import tech.ccat.chatchannel.service.ChatService;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ChatChannelAPIImpl implements ChatChannelAPI {
 
@@ -70,5 +73,35 @@ public class ChatChannelAPIImpl implements ChatChannelAPI {
     @Override
     public void setFormat(ChannelType channel, String format) {
         config.setFormatOverride(channel.getName(), format);
+    }
+
+    @Override
+    public void setPartyMemberProvider(Function<Player, Collection<Player>> provider) {
+        service.setPartyMemberProvider(provider);
+    }
+
+    @Override
+    public void setGuildMemberProvider(Function<Player, Collection<Player>> provider) {
+        service.setGuildMemberProvider(provider);
+    }
+
+    @Override
+    public void setOfficerMemberProvider(Function<Player, Collection<Player>> provider) {
+        service.setOfficerMemberProvider(provider);
+    }
+
+    @Override
+    public void setIsInPartyPredicate(Predicate<Player> predicate) {
+        service.setIsInPartyPredicate(predicate);
+    }
+
+    @Override
+    public void setIsInGuildPredicate(Predicate<Player> predicate) {
+        service.setIsInGuildPredicate(predicate);
+    }
+
+    @Override
+    public void setIsOfficerPredicate(Predicate<Player> predicate) {
+        service.setIsOfficerPredicate(predicate);
     }
 }

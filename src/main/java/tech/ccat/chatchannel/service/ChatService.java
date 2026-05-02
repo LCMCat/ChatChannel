@@ -14,7 +14,10 @@ import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ChatService {
 
@@ -25,6 +28,14 @@ public class ChatService {
     private final PrivateMessageManager pmManager;
     private final ChatLogManager logManager;
     private final Logger logger;
+
+    private Function<Player, Collection<Player>> partyMemberProvider = p -> Collections.emptyList();
+    private Function<Player, Collection<Player>> guildMemberProvider = p -> Collections.emptyList();
+    private Function<Player, Collection<Player>> officerMemberProvider = p -> Collections.emptyList();
+
+    private Predicate<Player> isInPartyPredicate = p -> false;
+    private Predicate<Player> isInGuildPredicate = p -> false;
+    private Predicate<Player> isOfficerPredicate = p -> false;
 
     public ChatService(ProxyServer server, ChatChannelConfig config,
                        PlayerChannelManager channelManager,
@@ -162,22 +173,46 @@ public class ChatService {
     private Collection<Player> getChannelRecipients(Player sender, ChannelType channel) {
         return switch (channel) {
             case ALL -> server.getAllPlayers();
-            case PARTY -> getPartyMembers(sender);
-            case GUILD -> getGuildMembers(sender);
-            case OFFICER -> getOfficerMembers(sender);
+            case PARTY -> partyMemberProvider.apply(sender);
+            case GUILD -> guildMemberProvider.apply(sender);
+            case OFFICER -> officerMemberProvider.apply(sender);
         };
     }
 
-    private Collection<Player> getPartyMembers(Player player) {
-        return server.getAllPlayers();
+    public void setPartyMemberProvider(Function<Player, Collection<Player>> provider) {
+        this.partyMemberProvider = provider != null ? provider : p -> Collections.emptyList();
     }
 
-    private Collection<Player> getGuildMembers(Player player) {
-        return server.getAllPlayers();
+    public void setGuildMemberProvider(Function<Player, Collection<Player>> provider) {
+        this.guildMemberProvider = provider != null ? provider : p -> Collections.emptyList();
     }
 
-    private Collection<Player> getOfficerMembers(Player player) {
-        return server.getAllPlayers();
+    public void setOfficerMemberProvider(Function<Player, Collection<Player>> provider) {
+        this.officerMemberProvider = provider != null ? provider : p -> Collections.emptyList();
+    }
+
+    public boolean isInParty(Player player) {
+        return isInPartyPredicate.test(player);
+    }
+
+    public boolean isInGuild(Player player) {
+        return isInGuildPredicate.test(player);
+    }
+
+    public boolean isOfficer(Player player) {
+        return player.hasPermission(config.getPermission("channel-officer"));
+    }
+
+    public void setIsInPartyPredicate(Predicate<Player> predicate) {
+        this.isInPartyPredicate = predicate != null ? predicate : p -> false;
+    }
+
+    public void setIsInGuildPredicate(Predicate<Player> predicate) {
+        this.isInGuildPredicate = predicate != null ? predicate : p -> false;
+    }
+
+    public void setIsOfficerPredicate(Predicate<Player> predicate) {
+        this.isOfficerPredicate = predicate != null ? predicate : p -> false;
     }
 
     public void removePlayer(UUID uuid) {

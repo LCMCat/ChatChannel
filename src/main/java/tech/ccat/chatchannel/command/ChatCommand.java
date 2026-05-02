@@ -72,40 +72,24 @@ public class ChatCommand implements SimpleCommand {
     private boolean validateChannelAccess(Player player, ChannelType channel) {
         switch (channel) {
             case PARTY -> {
-                if (!isInParty(player)) {
+                if (!service.isInParty(player)) {
                     player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("party-not-in-party")));
                     return false;
                 }
             }
             case GUILD -> {
-                if (!isInGuild(player)) {
+                if (!service.isInGuild(player)) {
                     player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("guild-not-in-guild")));
                     return false;
                 }
             }
             case OFFICER -> {
-                if (!isInGuild(player)) {
-                    player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("guild-not-in-guild")));
-                    return false;
-                }
-                if (!isOfficer(player)) {
+                if (!service.isOfficer(player)) {
                     player.sendMessage(MessageUtil.format(config.getMessage("prefix") + config.getMessage("guild-no-officer")));
                     return false;
                 }
             }
         }
-        return true;
-    }
-
-    private boolean isInParty(Player player) {
-        return true;
-    }
-
-    private boolean isInGuild(Player player) {
-        return true;
-    }
-
-    private boolean isOfficer(Player player) {
         return true;
     }
 
