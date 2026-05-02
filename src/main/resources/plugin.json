@@ -1,0 +1,9 @@
+{
+  "id": "chatchannel",
+  "name": "ChatChannel",
+  "version": "1.0.0",
+  "description": "Hypixel-style Chat Channel System for Velocity",
+  "authors": ["Cation"],
+  "dependencies": [],
+  "main": "com.chatchannel.ChatChannelPlugin"
+}
